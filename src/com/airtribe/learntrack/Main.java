@@ -1,14 +1,18 @@
 package com.airtribe.learntrack;
 
 import com.airtribe.learntrack.entity.Course;
+import com.airtribe.learntrack.entity.Enrollment;
 import com.airtribe.learntrack.entity.Student;
 import com.airtribe.learntrack.exception.EntityNotFoundException;
+import com.airtribe.learntrack.constants.EnrollmentStatus;
 import com.airtribe.learntrack.service.CourseService;
+import com.airtribe.learntrack.service.EnrollmentService;
 import com.airtribe.learntrack.service.StudentService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Scanner;
 
 import static com.airtribe.learntrack.constants.AppConstants.INVALID_OPTION;
@@ -22,6 +26,7 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static final StudentService studentService = new StudentService();
     private static final CourseService courseService = new CourseService();
+    private static final EnrollmentService enrollmentService = new EnrollmentService();
     private static final Scanner scanner = new Scanner(System.in);
 
 
@@ -46,7 +51,10 @@ public class Main {
                         courseMenu(chooseOption);
                     }
                     case 3 -> {
-                        logger.info("Enrollment Management selected - Feature coming soon!");
+                        logger.info("Enrollment Management selected!");
+                        displayEnrollmentMenu();
+                        chooseOption = readUserChoice();
+                        enrollmentMenu(chooseOption);
                     }
                     default -> {
                         logger.info("Exiting application...");
@@ -289,10 +297,142 @@ public class Main {
 
              courseService.addCourse(course);
 
-        }catch (IllegalArgumentException e){
-            logger.error("Error adding course: {}", e.getMessage());
+         }catch (IllegalArgumentException e){
+             logger.error("Error adding course: {}", e.getMessage());
 
-        }
+         }
 
-    }
+     }
+
+     /**
+      * Display the enrollment menu
+      */
+     private static void displayEnrollmentMenu() {
+         logger.info("\n======== Enrollment Menu ========");
+         logger.info("1. Enroll Student in Course");
+         logger.info("2. View Student Enrollments");
+         logger.info("3. Mark Enrollment as Completed");
+         logger.info("4. Mark Enrollment as Cancelled");
+         logger.info(EXIT);
+         logger.info(PLEASE_SELECT_OPT);
+     }
+
+     /**
+      * Handle enrollment menu choices
+      */
+     private static void enrollmentMenu(int choice) {
+         switch (choice) {
+             case 1:
+                 enrollStudentMenu();
+                 break;
+             case 2:
+                 viewStudentEnrollmentsMenu();
+                 break;
+             case 3:
+                 markEnrollmentAsCompletedMenu();
+                 break;
+             case 4:
+                 markEnrollmentAsCancelledMenu();
+                 break;
+             case MENU_EXIT:
+                 logger.info("Exiting enrollment menu...");
+                 break;
+             default:
+                 logger.info("Invalid choice. Please select a valid option.");
+         }
+     }
+
+     /**
+      * Enroll a student in a course
+      */
+     private static void enrollStudentMenu() {
+         try {
+             logger.info("Enter student ID: ");
+             int studentId = scanner.nextInt();
+             scanner.nextLine();
+
+             logger.info("Enter course ID: ");
+             int courseId = scanner.nextInt();
+             scanner.nextLine();
+
+
+
+
+
+             enrollmentService.enrollStudent(studentId, courseId);
+             logger.info("✓ Student enrolled successfully!");
+         } catch (IllegalArgumentException e) {
+             logger.error("Error enrolling student: {}", e.getMessage());
+         } catch (Exception e) {
+             logger.error("Error occurred: {}", e.getMessage());
+         }
+     }
+
+     /**
+      * View all enrollments for a student
+      */
+     private static void viewStudentEnrollmentsMenu() {
+         try {
+             logger.info("Enter student ID: ");
+             int studentId = scanner.nextInt();
+             scanner.nextLine();
+
+             List<Enrollment> enrollments = enrollmentService.getStudentEnrollments(studentId);
+
+             if (enrollments.isEmpty()) {
+                 logger.info("No enrollments found for student ID: {}", studentId);
+                 return;
+             }
+
+             logger.info("\n======== Enrollments for Student ID: {} ========", studentId);
+             enrollments.forEach(enrollment -> logger.info(enrollment.toString()));
+             logger.info("==========================================\n");
+         } catch (Exception e) {
+             logger.error("Error fetching enrollments: {}", e.getMessage());
+         }
+     }
+
+     /**
+      * Mark an enrollment as completed
+      */
+     private static void markEnrollmentAsCompletedMenu() {
+         try {
+             logger.info("Enter student ID: ");
+             int studentId = scanner.nextInt();
+             scanner.nextLine();
+
+             logger.info("Enter enrollment ID: ");
+             int enrollmentId = scanner.nextInt();
+             scanner.nextLine();
+
+             enrollmentService.markEnrollmentAsCompleted(enrollmentId, studentId);
+             logger.info("✓ Enrollment marked as completed successfully!");
+         } catch (EntityNotFoundException e) {
+             logger.error("Error: {}", e.getMessage());
+         } catch (Exception e) {
+             logger.error("Error occurred: {}", e.getMessage());
+         }
+     }
+
+     /**
+      * Mark an enrollment as cancelled
+      */
+     private static void markEnrollmentAsCancelledMenu() {
+         try {
+             logger.info("Enter student ID: ");
+             int studentId = scanner.nextInt();
+             scanner.nextLine();
+
+             logger.info("Enter enrollment ID: ");
+             int enrollmentId = scanner.nextInt();
+             scanner.nextLine();
+
+             enrollmentService.markEnrollmentAsCancelled(enrollmentId, studentId);
+             logger.info("✓ Enrollment marked as cancelled successfully!");
+         } catch (EntityNotFoundException e) {
+             logger.error("Error: {}", e.getMessage());
+         } catch (Exception e) {
+             logger.error("Error occurred: {}", e.getMessage());
+         }
+     }
 }

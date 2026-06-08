@@ -61,6 +61,17 @@ public class Enrollment {
     public void setStatus(EnrollmentStatus.Status status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "Enrollment{" +
+                "id=" + id +
+                ", studentId=" + studentId +
+                ", courseId=" + courseId +
+                ", enrollmentDate='" + enrollmentDate + '\'' +
+                ", status=" + status +
+                '}';
+    }
 }
 
 
