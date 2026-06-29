@@ -15,3 +15,5 @@ To compile and run the Student & Course Management System application, follow be
 6. To exit the application, you can use the exit command by pressing '0' when prompted for an option.
 
 
+RelationsThe Student & Course Management System application has the following relationships between classes: Please refer CLASS_DIAGRAM.md
+
